@@ -1,9 +1,5 @@
 package consolautils.cl.bemtorres.utilidades;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.Charset;
-
 public class ConsolaTest {
     private static final String BORDE = "*".repeat(50);
     private static final String NUEVA_LINEA = System.lineSeparator();
@@ -13,55 +9,75 @@ public class ConsolaTest {
         verificaLinea();
         verificaLineaConTexto();
         verificaLineaConTextoEnBlanco();
-        verificaImprimir();
-        verificaAutor();
-        System.out.println("Todas las pruebas unitarias pasaron.");
+        verificaTituloYBloque();
+        verificaMensajes();
+        System.out.println("ConsolaTest pasó.");
     }
 
     private static void verificaSalto() {
-        assertEquals(NUEVA_LINEA, capturaSalida(Consola::salto));
+        TestSupport.assertEquals(NUEVA_LINEA, TestSupport.capturarSalida(Consola::salto));
     }
 
     private static void verificaLinea() {
-        assertEquals(BORDE + NUEVA_LINEA, capturaSalida(Consola::linea));
+        TestSupport.assertEquals(BORDE + NUEVA_LINEA,
+                TestSupport.capturarSalida(Consola::linea));
     }
 
     private static void verificaLineaConTexto() {
         String esperado = BORDE + NUEVA_LINEA
                 + "* Sección" + NUEVA_LINEA
                 + BORDE + NUEVA_LINEA;
-        assertEquals(esperado, capturaSalida(() -> Consola.linea("  Sección  ")));
+        TestSupport.assertEquals(esperado,
+                TestSupport.capturarSalida(() -> Consola.linea("  Sección  ")));
     }
 
     private static void verificaLineaConTextoEnBlanco() {
         String esperado = BORDE + NUEVA_LINEA + BORDE + NUEVA_LINEA;
-        assertEquals(esperado, capturaSalida(() -> Consola.linea("   ")));
-        assertEquals(esperado, capturaSalida(() -> Consola.linea(null)));
+        TestSupport.assertEquals(esperado,
+                TestSupport.capturarSalida(() -> Consola.linea("   ")));
+        TestSupport.assertEquals(esperado,
+                TestSupport.capturarSalida(() -> Consola.linea(null)));
     }
 
-    private static void verificaImprimir() {
-        assertEquals("Hola" + NUEVA_LINEA, capturaSalida(() -> Consola.imprimir("Hola")));
+    private static void verificaTituloYBloque() {
+        String texto = "a".repeat(50);
+        String esperadoTitulo = BORDE + NUEVA_LINEA
+                + "* " + "a".repeat(46) + " *" + NUEVA_LINEA
+                + "* " + " ".repeat(21) + "aaaa" + " ".repeat(21) + " *" + NUEVA_LINEA
+                + BORDE + NUEVA_LINEA;
+        TestSupport.assertEquals(esperadoTitulo,
+                TestSupport.capturarSalida(() -> Consola.titulo(texto)));
+
+        String esperadoBloque = BORDE + NUEVA_LINEA
+                + "* " + "a".repeat(46) + " *" + NUEVA_LINEA
+                + "* aaaa" + " ".repeat(42) + " *" + NUEVA_LINEA
+                + BORDE + NUEVA_LINEA;
+        TestSupport.assertEquals(esperadoBloque,
+                TestSupport.capturarSalida(() -> Consola.bloque(texto)));
+        TestSupport.assertEquals("Detalles" + NUEVA_LINEA + "--------" + NUEVA_LINEA,
+                TestSupport.capturarSalida(() -> Consola.subtitulo(" Detalles ")));
     }
 
-    private static void verificaAutor() {
-        assertEquals("Creado por Bemtorres" + NUEVA_LINEA, capturaSalida(Consola::autor));
-    }
+    private static void verificaMensajes() {
+        TestSupport.assertEquals("Hola" + NUEVA_LINEA,
+                TestSupport.capturarSalida(() -> Consola.imprimir("Hola")));
+        TestSupport.assertEquals("Creado por Bemtorres" + NUEVA_LINEA,
+                TestSupport.capturarSalida(Consola::autor));
 
-    private static String capturaSalida(Runnable accion) {
-        PrintStream salidaOriginal = System.out;
-        ByteArrayOutputStream salida = new ByteArrayOutputStream();
-        try (PrintStream capturada = new PrintStream(salida, true, Charset.defaultCharset())) {
-            System.setOut(capturada);
-            accion.run();
+        Consola.configurarColores(false);
+        TestSupport.assertEquals("OK: Listo" + NUEVA_LINEA,
+                TestSupport.capturarSalida(() -> Consola.exito("Listo")));
+
+        Consola.configurarColores(true);
+        try {
+            TestSupport.assertEquals("\u001B[32mOK: Listo\u001B[0m" + NUEVA_LINEA,
+                    TestSupport.capturarSalida(() -> Consola.exito("Listo")));
+            TestSupport.assertEquals("\u001B[33mAdvertencia: Atención\u001B[0m" + NUEVA_LINEA,
+                    TestSupport.capturarSalida(() -> Consola.advertencia("Atención")));
+            TestSupport.assertEquals("\u001B[31mError: Falló\u001B[0m" + NUEVA_LINEA,
+                    TestSupport.capturarSalida(() -> Consola.error("Falló")));
         } finally {
-            System.setOut(salidaOriginal);
-        }
-        return salida.toString(Charset.defaultCharset());
-    }
-
-    private static void assertEquals(String esperado, String actual) {
-        if (!esperado.equals(actual)) {
-            throw new AssertionError("Esperado: <" + esperado + ">, obtenido: <" + actual + ">");
+            Consola.configurarColores(false);
         }
     }
 }
