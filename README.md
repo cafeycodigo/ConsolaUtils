@@ -2,8 +2,8 @@
 
 ConsolaUtils es una pequeña biblioteca Java con utilidades para imprimir
 mensajes y formatos en la consola, y solicitar entradas validadas. El proyecto
-también incluye una clase principal vacía, que puede utilizarse como punto de
-entrada para una futura aplicación.
+incluye ejemplos comentados en la clase principal para mostrar cómo usar las
+utilidades, validar RUT y patentes chilenas y trabajar con el DAO en memoria.
 
 ## Requisitos
 
@@ -20,6 +20,14 @@ ant jar
 
 El archivo generado queda en `dist/ConsolaUtils.jar`. También puedes abrir el
 proyecto en NetBeans y utilizar las acciones de compilación del IDE.
+
+## Ejemplos en la clase principal
+
+`src/consolautils/ConsolaUtils.java` contiene ejemplos comentados dentro de
+`main`: formato de mensajes, entrada validada, validación de RUT y patentes,
+y operaciones CRUD del DAO. Los ejemplos están comentados para que no se
+ejecuten automáticamente. Descomenta el que quieras probar y ejecuta el
+proyecto desde NetBeans o con `ant run`.
 
 ## Uso
 
